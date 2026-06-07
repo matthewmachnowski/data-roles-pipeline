@@ -90,7 +90,7 @@ Any such conversion happens explicitly and visibly at analysis time, never here.
 | `salary_currency_raw` | category {PLN, EUR, USD, …} | yes | original currency before normalization |
 | `salary_period_raw` | category {month, year, hour, unknown} | yes | original period before normalization |
 | `salary_fx_rate` | Float64 | yes | PLN-per-unit rate applied if currency was normalized (else null / `1.0`) |
-| `salary_is_estimated` | bool | no | `true` for Adzuna estimates, else `false` |
+| `salary_is_estimated` | bool | no | derived from raw `salary_is_predicted` (`'1'`→true, `'0'`→false); `false` for all v1 Adzuna rows — **not hardcoded** |
 | `salary_raw` | string | yes | original salary text/struct, for audit |
 
 > **Multiple-range rule (documented, human-editable):** when a posting lists
@@ -98,6 +98,12 @@ Any such conversion happens explicitly and visibly at analysis time, never here.
 > `salary_basis_contract='b2b'`; fall back to UoP otherwise. All offered
 > contracts are still captured in `employment_types`. This is a deliberate,
 > visible choice — flag it before flipping it.
+>
+> **Adzuna annual-basis rule (documented, human-editable):** Adzuna PL pay is
+> reported as **annual PLN**, so the default is `salary_period_raw='year'`,
+> converted ÷12 → monthly. Implausibly low values (~5% of salaried rows, down to
+> single-digit PLN) are **flagged as outliers** (`salary_period_raw='unknown'`,
+> left un-normalized) rather than silently divided by 12.
 
 ### Skills / extraction content
 
@@ -126,8 +132,10 @@ Any such conversion happens explicitly and visibly at analysis time, never here.
 - **Source (v1 = Adzuna only):** Adzuna is the sole source — it carries title,
   description, salary, company and location, and its descriptions were spot-
   checked as ~1:1 with the original board offers (enough for skill extraction).
-  Its pay is *estimated* (`salary_is_estimated = true`, with no gross/net or
-  UoP/B2B basis), so treat all bands as approximate. The `source` enum still
+  Its pay is **employer-stated** (`salary_is_predicted='0'` on every v1 posting →
+  `salary_is_estimated=false`), reported as **annual PLN** (normalized ÷12 to
+  monthly), present on ~34% of postings, with no gross/net or UoP/B2B basis
+  (those flags sit at `unknown`). The `source` enum still
   lists `{adzuna, justjoin, nofluffjobs}` (schema is frozen), but only `adzuna`
   is populated in v1; the PL boards are dropped from v1 scope (see `CLAUDE.md`).
 - **Lossless vs lossy:** `salary_*_pln_month` reflect only period+currency

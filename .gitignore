@@ -5,6 +5,9 @@ claude-docs/
 data/
 tasks/
 
+# Personal decision write-up — local only
+docs/decision.md
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

@@ -123,10 +123,13 @@ Any such conversion happens explicitly and visibly at analysis time, never here.
 - **Salary bias:** postings that disclose pay are not representative of all
   postings. Always report `salary_present` coverage alongside any pay figure;
   never drop rows to make the numbers look clean.
-- **Source roles:** Adzuna is breadth / counts / taxonomy and its pay is
-  *estimated* (`salary_is_estimated = true`) — treat its bands as approximate.
-  The PL boards (justjoin.it, No Fluff Jobs) carry rich skills and the deep
-  dive. `source` + `salary_is_estimated` let analysis honor this split.
+- **Source (v1 = Adzuna only):** Adzuna is the sole source — it carries title,
+  description, salary, company and location, and its descriptions were spot-
+  checked as ~1:1 with the original board offers (enough for skill extraction).
+  Its pay is *estimated* (`salary_is_estimated = true`, with no gross/net or
+  UoP/B2B basis), so treat all bands as approximate. The `source` enum still
+  lists `{adzuna, justjoin, nofluffjobs}` (schema is frozen), but only `adzuna`
+  is populated in v1; the PL boards are dropped from v1 scope (see `CLAUDE.md`).
 - **Lossless vs lossy:** `salary_*_pln_month` reflect only period+currency
   normalization. To compare across gross/net or UoP/B2B, filter on
   `salary_basis_*` or apply a conversion explicitly downstream — the stored

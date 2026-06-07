@@ -1,6 +1,10 @@
 # Claude work notes — local only, not pushed
 claude-docs/
 
+# Project data & local task tracking — kept local, not pushed
+data/
+tasks/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
